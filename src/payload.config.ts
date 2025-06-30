@@ -8,7 +8,8 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { Users } from './collections/Users'
-import { Media } from './collections/Media'
+import { authjsPlugin } from 'payload-authjs'
+import { authConfig } from './auth.config'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -19,8 +20,9 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    dateFormat: 'dd/mm/yyyy hh:mm',
   },
-  collections: [Users, Media],
+  collections: [Users],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -35,5 +37,8 @@ export default buildConfig({
   plugins: [
     payloadCloudPlugin(),
     // storage-adapter-placeholder
+    authjsPlugin({
+      authjsConfig: authConfig,
+    }),
   ],
 })
