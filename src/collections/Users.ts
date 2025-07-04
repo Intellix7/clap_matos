@@ -1,35 +1,36 @@
-import type { CollectionConfig } from 'payload'
+import { isAdmin, isMe, isNotUser } from "@/service/accessControl";
+import type { CollectionConfig } from "payload";
 
 export const Users: CollectionConfig = {
-  slug: 'users',
+  slug: "users",
   admin: {
-    useAsTitle: 'email',
+    useAsTitle: "email",
   },
   auth: true,
   access: {
-    read: () => true,
-    update: ({ req: { user } }) => !!user,
-    delete: ({ req: { user } }) => !!user && user.role === 'admin',
-    create: () => true,
+    read: isMe,
+    update: isAdmin,
+    delete: isAdmin,
+    create: isNotUser, // Allow creation only for non-authenticated users
   },
   fields: [
     {
-      name: 'role',
-      type: 'select',
+      name: "role",
+      type: "select",
       options: [
-        { label: 'Admin', value: 'admin' },
-        { label: 'User', value: 'user' },
+        { label: "Admin", value: "admin" },
+        { label: "User", value: "user" },
       ],
-      defaultValue: 'user',
+      defaultValue: "user",
       required: true,
     },
     {
-      name: 'password',
-      type: 'text',
+      name: "password",
+      type: "text",
       required: true,
       admin: {
         hidden: true,
       },
     },
   ],
-}
+};

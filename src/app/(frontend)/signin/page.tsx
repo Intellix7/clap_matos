@@ -1,4 +1,5 @@
-import { useState } from "react";
+'use client';
+import { useState } from 'react';
 
 const SignInPage = () => {
   const [error, setError] = useState<string | null>(null);
