@@ -6,8 +6,12 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
   },
+  labels: {
+    singular: 'Utilisateur',
+    plural: 'Utilisateurs',
+  },
   auth: {
-    tokenExpiration: 7200,
+    tokenExpiration: 60 * 60 * 12, // 12 hours
     verify: true,
     maxLoginAttempts: 5, // Allow 5 login attempts before lockout
     lockTime: 600 * 1000, // 10 minutes

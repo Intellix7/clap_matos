@@ -1,10 +1,14 @@
-import { Access } from 'payload';
+import { Access, FieldAccess } from 'payload';
 
 export const isUser: Access = ({ req: { user } }) => {
   return !!user;
 };
 
 export const isAdmin: Access = ({ req: { user } }) => {
+  return !!user && user.role === 'admin';
+};
+
+export const isAdminField: FieldAccess = ({ req: { user } }) => {
   return !!user && user.role === 'admin';
 };
 

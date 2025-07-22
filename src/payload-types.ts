@@ -68,7 +68,9 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
-    games: Game;
+    jeux: Jeux;
+    categoriesJeux: CategoriesJeux;
+    emprunts: Emprunt;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -76,7 +78,9 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
-    games: GamesSelect<false> | GamesSelect<true>;
+    jeux: JeuxSelect<false> | JeuxSelect<true>;
+    categoriesJeux: CategoriesJeuxSelect<false> | CategoriesJeuxSelect<true>;
+    emprunts: EmpruntsSelect<false> | EmpruntsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -135,12 +139,36 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "games".
+ * via the `definition` "jeux".
  */
-export interface Game {
+export interface Jeux {
   id: number;
   name: string;
+  categorie: number | CategoriesJeux;
   aquisitionDate?: string | null;
+  borrowed?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categoriesJeux".
+ */
+export interface CategoriesJeux {
+  id: number;
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emprunts".
+ */
+export interface Emprunt {
+  id: number;
+  game: number | Jeux;
+  borrower: string;
+  dateRetour: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -156,8 +184,16 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
-        relationTo: 'games';
-        value: number | Game;
+        relationTo: 'jeux';
+        value: number | Jeux;
+      } | null)
+    | ({
+        relationTo: 'categoriesJeux';
+        value: number | CategoriesJeux;
+      } | null)
+    | ({
+        relationTo: 'emprunts';
+        value: number | Emprunt;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -221,11 +257,33 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "games_select".
+ * via the `definition` "jeux_select".
  */
-export interface GamesSelect<T extends boolean = true> {
+export interface JeuxSelect<T extends boolean = true> {
   name?: T;
+  categorie?: T;
   aquisitionDate?: T;
+  borrowed?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categoriesJeux_select".
+ */
+export interface CategoriesJeuxSelect<T extends boolean = true> {
+  name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emprunts_select".
+ */
+export interface EmpruntsSelect<T extends boolean = true> {
+  game?: T;
+  borrower?: T;
+  dateRetour?: T;
   updatedAt?: T;
   createdAt?: T;
 }

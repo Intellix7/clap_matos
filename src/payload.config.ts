@@ -5,9 +5,13 @@ import { buildConfig } from 'payload';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer';
+import { fr } from '@payloadcms/translations/languages/fr';
+import { en } from '@payloadcms/translations/languages/en';
 
 import { Users } from './collections/Users';
-import { Games } from './collections/Games';
+import { Jeux } from './collections/Jeux';
+import { CategorieJeux } from './collections/CategoriesJeux';
+import { Emprunts } from './collections/Emprunts';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -23,7 +27,7 @@ export default buildConfig({
     },
     dateFormat: 'dd/mm/yyyy hh:mm',
   },
-  collections: [Users, Games],
+  collections: [Users, Jeux, CategorieJeux, Emprunts],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -34,6 +38,10 @@ export default buildConfig({
       url: process.env.DATABASE_URI || '',
     },
   }),
+  i18n: {
+    fallbackLanguage: 'fr',
+    supportedLanguages: { fr, en },
+  },
   sharp,
   email: nodemailerAdapter({
     defaultFromAddress: 'cag@rezoleo.fr',

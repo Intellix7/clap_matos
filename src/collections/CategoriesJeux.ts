@@ -1,10 +1,14 @@
 import { isAdmin } from '@/service/accessControl';
 import type { CollectionConfig } from 'payload';
 
-export const Games: CollectionConfig = {
-  slug: 'games',
+export const CategorieJeux: CollectionConfig = {
+  slug: 'categoriesJeux',
   admin: {
     useAsTitle: 'name',
+  },
+  labels: {
+    singular: 'Catégorie de jeu',
+    plural: 'Catégories de jeux',
   },
   access: {
     read: () => true,
@@ -16,14 +20,8 @@ export const Games: CollectionConfig = {
     {
       name: 'name',
       type: 'text',
-      label: 'Nom du jeu',
+      label: 'Nom de la catégorie',
       required: true,
-    },
-    {
-      name: 'aquisitionDate',
-      type: 'date',
-      label: "Date d'acquisition",
-      defaultValue: () => new Date(),
     },
   ],
 };
