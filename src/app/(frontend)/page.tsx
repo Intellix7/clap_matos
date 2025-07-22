@@ -1,14 +1,19 @@
-import { headers as getHeaders } from 'next/headers.js';
-import { getPayload } from 'payload';
+import { getGames } from '@/service/data';
 import React from 'react';
 
-import config from '@/payload.config';
-
 export default async function HomePage() {
-  const headers = await getHeaders();
-  const payloadConfig = await config;
-  const payload = await getPayload({ config: payloadConfig });
-  const { user } = await payload.auth({ headers });
+  const paginatedGames = await getGames();
+  const games = paginatedGames.docs;
 
-  return <p>y&apos;a rien pour l&apos;instant, faut bosser</p>;
+  return (
+    <div>
+      <ul>
+        {games.map((game) => {
+          return (
+            <p>{`${game.name} - ${typeof game.categorie === 'object' ? game.categorie.name + ' +' : ' +'} ${game.playingTime || ''} + ${game.nbMinPlayers || ''} - ${game.nbMaxPlayers || ''}`}</p>
+          );
+        })}
+      </ul>
+    </div>
+  );
 }
