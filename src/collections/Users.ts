@@ -1,36 +1,34 @@
-import { isAdmin, isMe, isNotUser } from "@/service/accessControl";
-import type { CollectionConfig } from "payload";
+import { isAdmin, isAdminOrMe } from '@/service/accessControl';
+import type { CollectionConfig } from 'payload';
 
 export const Users: CollectionConfig = {
-  slug: "users",
+  slug: 'users',
   admin: {
-    useAsTitle: "email",
+    useAsTitle: 'email',
   },
-  auth: true,
+  auth: {
+    tokenExpiration: 7200,
+    verify: true,
+    maxLoginAttempts: 5, // Allow 5 login attempts before lockout
+    lockTime: 600 * 1000, // 10 minutes
+  },
   access: {
-    read: isMe,
+    read: isAdminOrMe,
     update: isAdmin,
     delete: isAdmin,
-    create: isNotUser, // Allow creation only for non-authenticated users
+    create: isAdmin,
   },
   fields: [
     {
-      name: "role",
-      type: "select",
+      name: 'role',
+      type: 'select',
       options: [
-        { label: "Admin", value: "admin" },
-        { label: "User", value: "user" },
+        { label: 'Admin', value: 'admin' },
+        { label: 'User', value: 'user' },
       ],
-      defaultValue: "user",
+      defaultValue: 'user',
       required: true,
-    },
-    {
-      name: "password",
-      type: "text",
-      required: true,
-      admin: {
-        hidden: true,
-      },
+      saveToJWT: true,
     },
   ],
 };

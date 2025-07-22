@@ -19,5 +19,11 @@ export const Games: CollectionConfig = {
       label: 'Nom du jeu',
       required: true,
     },
+    {
+      name: 'aquisitionDate',
+      type: 'date',
+      label: "Date d'acquisition",
+      defaultValue: () => new Date(),
+    },
   ],
 };

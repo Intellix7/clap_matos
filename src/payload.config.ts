@@ -1,15 +1,12 @@
-// storage-adapter-import-placeholder
 import { sqliteAdapter } from '@payloadcms/db-sqlite';
-import { payloadCloudPlugin } from '@payloadcms/payload-cloud';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import path from 'path';
 import { buildConfig } from 'payload';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer';
 
 import { Users } from './collections/Users';
-import { authjsPlugin } from 'payload-authjs';
-import { authConfig } from './auth.config';
 import { Games } from './collections/Games';
 
 const filename = fileURLToPath(import.meta.url);
@@ -17,6 +14,9 @@ const dirname = path.dirname(filename);
 
 export default buildConfig({
   admin: {
+    components: {
+      header: ['./components/payload/Header/index.tsx'],
+    },
     user: Users.slug,
     importMap: {
       baseDir: path.resolve(dirname),
@@ -35,11 +35,16 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: [
-    payloadCloudPlugin(),
-    // storage-adapter-placeholder
-    authjsPlugin({
-      authjsConfig: authConfig,
-    }),
-  ],
+  email: nodemailerAdapter({
+    defaultFromAddress: 'cag@rezoleo.fr',
+    defaultFromName: 'CAG',
+    transportOptions: {
+      host: process.env.SMTP_HOST || '',
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      // auth: {
+      //   user: process.env.SMTP_USER || '',
+      //   pass: process.env.SMTP_PASSWORD || '',
+      // },
+    },
+  }),
 });

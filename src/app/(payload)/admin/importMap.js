@@ -1,5 +1,5 @@
-import { AccountRowLabel as AccountRowLabel_06d0cb594d8f6ba2ac35015f930c882e } from 'payload-authjs/components'
+import { default as default_c27514fc760b9e6548a818f2273714fc } from '../../../components/payload/Header/index.tsx'
 
 export const importMap = {
-  "payload-authjs/components#AccountRowLabel": AccountRowLabel_06d0cb594d8f6ba2ac35015f930c882e
+  "./components/payload/Header/index.tsx#default": default_c27514fc760b9e6548a818f2273714fc
 }

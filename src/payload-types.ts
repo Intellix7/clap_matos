@@ -118,23 +118,20 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
-  email: string;
-  emailVerified?: string | null;
-  name?: string | null;
-  image?: string | null;
+  id: number;
   role: 'admin' | 'user';
-  password: string;
-  accounts?:
-    | {
-        id?: string | null;
-        provider: string;
-        providerAccountId: string;
-        type: string;
-      }[]
-    | null;
   updatedAt: string;
   createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  _verified?: boolean | null;
+  _verificationToken?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -143,6 +140,7 @@ export interface User {
 export interface Game {
   id: number;
   name: string;
+  aquisitionDate?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -155,7 +153,7 @@ export interface PayloadLockedDocument {
   document?:
     | ({
         relationTo: 'users';
-        value: string | User;
+        value: number | User;
       } | null)
     | ({
         relationTo: 'games';
@@ -164,7 +162,7 @@ export interface PayloadLockedDocument {
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -177,7 +175,7 @@ export interface PayloadPreference {
   id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -208,23 +206,18 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  id?: T;
-  email?: T;
-  emailVerified?: T;
-  name?: T;
-  image?: T;
   role?: T;
-  password?: T;
-  accounts?:
-    | T
-    | {
-        id?: T;
-        provider?: T;
-        providerAccountId?: T;
-        type?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  _verified?: T;
+  _verificationToken?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -232,6 +225,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface GamesSelect<T extends boolean = true> {
   name?: T;
+  aquisitionDate?: T;
   updatedAt?: T;
   createdAt?: T;
 }
