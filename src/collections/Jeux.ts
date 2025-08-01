@@ -73,6 +73,8 @@ export const Jeux: CollectionConfig = {
       name: 'nbGamesAvailable',
       type: 'number',
       required: true,
+      label: 'Nombre de jeux disponibles actuellement',
+      defaultValue: -1, // This will be set in the beforeChange hook
       access: {
         update: () => false,
         create: () => false,
@@ -82,7 +84,11 @@ export const Jeux: CollectionConfig = {
   hooks: {
     beforeChange: [
       async ({ data, originalDoc }) => {
-        if (originalDoc && originalDoc.nbGames !== data.nbGames) {
+        if (
+          originalDoc &&
+          originalDoc.nbGames !== data.nbGames &&
+          data.nbGamesAvailable !== -1 // Ensure this is not the initial creation
+        ) {
           data.nbGamesAvailable =
             originalDoc.nbGamesAvailable + (data.nbGames - originalDoc.nbGames);
           if (data.nbGamesAvailable < 0) {
@@ -91,7 +97,8 @@ export const Jeux: CollectionConfig = {
             );
           }
         }
-        data.nbGamesAvailable = data.nbGamesAvailable ?? data.nbGames;
+        data.nbGamesAvailable =
+          data.nbGamesAvailable != -1 ? data.nbGamesAvailable : data.nbGames;
         if (data.nbGamesAvailable < 0) {
           throw new Error(
             'Le nombre de jeux disponibles ne peut pas être négatif.'
