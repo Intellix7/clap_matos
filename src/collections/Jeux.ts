@@ -1,6 +1,5 @@
 import { isAdmin } from '@/service/accessControl';
 import type { CollectionConfig } from 'payload';
-import type { Jeux as JeuxType } from '@/payload-types';
 
 export const Jeux: CollectionConfig = {
   slug: 'jeux',
@@ -34,8 +33,7 @@ export const Jeux: CollectionConfig = {
     {
       name: 'aquisitionDate',
       type: 'date',
-      label:
-        "Date d'acquisition (si non renseignée, la date actuelle sera utilisée)",
+      label: "Date d'acquisition",
       defaultValue: () => new Date(),
     },
     {
