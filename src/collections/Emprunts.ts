@@ -25,15 +25,15 @@ export const Emprunts: CollectionConfig = {
       required: true,
       label: 'Jeu',
       filterOptions: {
-        borrowed: {
-          equals: false,
+        nbGamesAvailable: {
+          greater_than: 0,
         },
       },
     },
     {
       name: 'borrower',
       type: 'email',
-      label: 'Emprunteur',
+      label: "Mail de l'emprunteur",
       required: true,
       access: {
         read: isAdminField,
@@ -68,7 +68,9 @@ export const Emprunts: CollectionConfig = {
           game = data.game as Jeux;
         }
 
-        if (game.borrowed) {
+        const nbGamesAvailable = game.nbGamesAvailable;
+
+        if (nbGamesAvailable <= 0) {
           throw new Error('Ce jeu est déjà emprunté.');
         }
 
@@ -76,19 +78,27 @@ export const Emprunts: CollectionConfig = {
         await req.payload.update({
           id: game.id,
           collection: 'jeux',
-          data: { borrowed: true },
+          data: { nbGamesAvailable: nbGamesAvailable - 1 },
         });
       },
     ],
     afterDelete: [
       async ({ req, doc }) => {
-        const gameId: number =
-          typeof doc.game === 'number' ? doc.game : doc.game.id;
+        let game: Jeux;
+        if (typeof doc.game === 'number') {
+          game = await req.payload.findByID({
+            id: doc.game,
+            collection: 'jeux',
+          });
+        } else {
+          game = doc.game as Jeux;
+        }
+
         // Mark the game as not borrowed when the emprunt is deleted
         await req.payload.update({
-          id: gameId,
+          id: game.id,
           collection: 'jeux',
-          data: { borrowed: false },
+          data: { nbGamesAvailable: game.nbGamesAvailable + 1 },
         });
       },
     ],

@@ -149,7 +149,8 @@ export interface Jeux {
   playingTime?: string | null;
   nbMinPlayers?: number | null;
   nbMaxPlayers?: number | null;
-  borrowed?: boolean | null;
+  nbGames: number;
+  nbGamesAvailable: number;
   updatedAt: string;
   createdAt: string;
 }
@@ -269,7 +270,8 @@ export interface JeuxSelect<T extends boolean = true> {
   playingTime?: T;
   nbMinPlayers?: T;
   nbMaxPlayers?: T;
-  borrowed?: T;
+  nbGames?: T;
+  nbGamesAvailable?: T;
   updatedAt?: T;
   createdAt?: T;
 }
