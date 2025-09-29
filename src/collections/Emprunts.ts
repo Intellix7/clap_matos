@@ -1,14 +1,15 @@
 import { Jeux } from '@/payload-types';
-import { isAdmin, isAdminField } from '@/service/accessControl';
+import { isUser } from '@/service/accessControl';
+import populateCreatedBy from '@/service/populateCreatedBy';
 import type { CollectionConfig } from 'payload';
 
 export const Emprunts: CollectionConfig = {
   slug: 'emprunts',
   access: {
-    read: () => true,
-    update: isAdmin,
-    delete: isAdmin,
-    create: isAdmin,
+    read: isUser,
+    update: isUser,
+    delete: isUser,
+    create: isUser,
   },
   labels: {
     singular: 'Emprunt',
@@ -31,13 +32,22 @@ export const Emprunts: CollectionConfig = {
       },
     },
     {
+      name: 'borrowerName',
+      type: 'text',
+      label: "Nom de l'emprunteur",
+      required: true,
+    },
+    {
       name: 'borrower',
       type: 'email',
-      label: "Mail de l'emprunteur",
-      required: true,
-      access: {
-        read: isAdminField,
-      },
+      label: "Mail de l'emprunteur (si présent, un rappel sera envoyé)",
+    },
+    {
+      name: 'jobIds',
+      type: 'number',
+      label: "IDs des jobs d'envoi de mails (interne)",
+      hidden: true,
+      hasMany: true,
     },
     {
       name: 'dateRetour',
@@ -50,22 +60,86 @@ export const Emprunts: CollectionConfig = {
         },
       },
     },
+    {
+      name: 'createdBy',
+      type: 'relationship',
+      relationTo: 'users',
+      label: 'Créé par',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        allowCreate: false,
+      },
+    },
   ],
   hooks: {
-    afterChange: [
+    beforeChange: [
       async ({ req, data, operation }) => {
+        if (operation === 'create') {
+          await populateCreatedBy({ req, data });
+        }
+      },
+    ],
+
+    afterChange: [
+      async ({ req, doc, operation }) => {
         if (operation !== 'create') {
           return;
         }
 
         let game: Jeux;
-        if (typeof data.game === 'number') {
+        if (typeof doc.game === 'number') {
           game = await req.payload.findByID({
-            id: data.game,
+            id: doc.game,
             collection: 'jeux',
           });
         } else {
-          game = data.game as Jeux;
+          game = doc.game as Jeux;
+        }
+
+        const userMailDate = new Date(
+          new Date(doc.dateRetour).getTime() - 1 * 24 * 60 * 60 * 1000
+        ); // 1 day before return date
+
+        const adminMailDate = new Date(
+          new Date(doc.dateRetour).getTime() + 1 * 24 * 60 * 60 * 1000
+        ); // 1 day after return date
+
+        let jobIds: number[] = [];
+
+        if (doc.borrower && userMailDate > new Date()) {
+          const clientJob = await req.payload.jobs.queue({
+            task: 'sendClientReminder',
+            input: {
+              email: doc.borrower,
+              gameName: game.name,
+              name: doc.borrowerName,
+            },
+            waitUntil: userMailDate,
+          });
+          jobIds.push(clientJob.id);
+        }
+
+        if (req.user?.email && new Date(doc.dateRetour) > new Date()) {
+          const adminJob = await req.payload.jobs.queue({
+            task: 'sendAdminReminder',
+            input: {
+              email: req.user?.email || '',
+              gameName: game.name,
+              name: doc.borrowerName,
+            },
+            waitUntil: adminMailDate,
+          });
+          jobIds.push(adminJob.id);
+        }
+
+        // Save jobIds back into the Emprunt doc
+        if (jobIds.length > 0) {
+          const test = await req.payload.update({
+            id: doc.id,
+            collection: 'emprunts',
+            data: { jobIds },
+          });
         }
 
         const nbGamesAvailable = game.nbGamesAvailable;
@@ -94,12 +168,27 @@ export const Emprunts: CollectionConfig = {
           game = doc.game as Jeux;
         }
 
-        // Mark the game as not borrowed when the emprunt is deleted
-        await req.payload.update({
-          id: game.id,
-          collection: 'jeux',
-          data: { nbGamesAvailable: game.nbGamesAvailable + 1 },
-        });
+        const result = await Promise.all([
+          // Log the emprunt in the historiqueEmprunt collection
+          req.payload.create({
+            collection: 'historiqueEmprunt',
+            data: doc,
+          }),
+
+          // Cancel any pending jobs related to this emprunt
+          req.payload.jobs.cancel({
+            where: {
+              id: { in: doc.jobIds },
+            },
+          }),
+
+          // Mark the game as not borrowed when the emprunt is deleted
+          req.payload.update({
+            id: game.id,
+            collection: 'jeux',
+            data: { nbGamesAvailable: game.nbGamesAvailable + 1 },
+          }),
+        ]);
       },
     ],
   },

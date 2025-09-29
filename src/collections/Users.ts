@@ -1,4 +1,4 @@
-import { isAdmin, isAdminOrMe } from '@/service/accessControl';
+import { isBureau, isBureauOrMe } from '@/service/accessControl';
 import type { CollectionConfig } from 'payload';
 
 export const Users: CollectionConfig = {
@@ -17,20 +17,20 @@ export const Users: CollectionConfig = {
     lockTime: 600 * 1000, // 10 minutes
   },
   access: {
-    read: isAdminOrMe,
-    update: isAdmin,
-    delete: isAdmin,
-    create: isAdmin,
+    read: isBureauOrMe,
+    update: isBureau,
+    delete: isBureau,
+    create: isBureau,
   },
   fields: [
     {
       name: 'role',
       type: 'select',
       options: [
-        { label: 'Admin', value: 'admin' },
-        { label: 'User', value: 'user' },
+        { label: 'Bureau', value: 'bureau' },
+        { label: 'Passe-partout', value: 'passePartout' },
       ],
-      defaultValue: 'user',
+      defaultValue: 'passePartout',
       required: true,
       saveToJWT: true,
     },

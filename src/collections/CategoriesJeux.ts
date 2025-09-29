@@ -1,4 +1,4 @@
-import { isAdmin } from '@/service/accessControl';
+import { isBureau } from '@/service/accessControl';
 import type { CollectionConfig } from 'payload';
 
 export const CategorieJeux: CollectionConfig = {
@@ -12,9 +12,9 @@ export const CategorieJeux: CollectionConfig = {
   },
   access: {
     read: () => true,
-    update: isAdmin,
-    delete: isAdmin,
-    create: isAdmin,
+    update: isBureau,
+    delete: isBureau,
+    create: isBureau,
   },
   fields: [
     {

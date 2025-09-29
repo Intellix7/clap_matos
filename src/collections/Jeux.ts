@@ -1,4 +1,4 @@
-import { isAdmin } from '@/service/accessControl';
+import { isBureau, isUser } from '@/service/accessControl';
 import type { CollectionConfig } from 'payload';
 
 export const Jeux: CollectionConfig = {
@@ -8,9 +8,9 @@ export const Jeux: CollectionConfig = {
   },
   access: {
     read: () => true,
-    update: isAdmin,
-    delete: isAdmin,
-    create: isAdmin,
+    update: isBureau,
+    delete: isBureau,
+    create: isBureau,
   },
   labels: {
     singular: 'Jeu',
@@ -29,6 +29,7 @@ export const Jeux: CollectionConfig = {
       relationTo: 'categoriesJeux',
       required: true,
       label: 'Catégorie',
+      hasMany: true,
     },
     {
       name: 'aquisitionDate',
@@ -62,7 +63,7 @@ export const Jeux: CollectionConfig = {
     {
       name: 'nbGames',
       type: 'number',
-      label: 'Nombre de jeux disponibles',
+      label: "Nombre d'exemplaires",
       defaultValue: 1,
       required: true,
       min: 1,

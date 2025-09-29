@@ -12,6 +12,9 @@ import { Users } from './collections/Users';
 import { Jeux } from './collections/Jeux';
 import { CategorieJeux } from './collections/CategoriesJeux';
 import { Emprunts } from './collections/Emprunts';
+import { HistoriqueEmprunt } from './collections/HistoriqueEmprunt';
+import { sendClientReminderTask } from './tasks/sendClientReminder';
+import { sendAdminReminderTask } from './tasks/sendAdminReminder';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -27,7 +30,7 @@ export default buildConfig({
     },
     dateFormat: 'dd/mm/yyyy hh:mm',
   },
-  collections: [Users, Jeux, CategorieJeux, Emprunts],
+  collections: [Users, Jeux, CategorieJeux, Emprunts, HistoriqueEmprunt],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -55,4 +58,17 @@ export default buildConfig({
       // },
     },
   }),
+  jobs: {
+    access: {
+      run: ({ req }) => {
+        return !!req.user;
+      },
+    },
+    autoRun: [
+      {
+        cron: '0 * * * *', // Runs every hour
+      },
+    ],
+    tasks: [sendClientReminderTask, sendAdminReminderTask],
+  },
 });

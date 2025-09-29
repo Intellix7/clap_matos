@@ -71,6 +71,8 @@ export interface Config {
     jeux: Jeux;
     categoriesJeux: CategoriesJeux;
     emprunts: Emprunt;
+    historiqueEmprunt: HistoriqueEmprunt;
+    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -81,6 +83,8 @@ export interface Config {
     jeux: JeuxSelect<false> | JeuxSelect<true>;
     categoriesJeux: CategoriesJeuxSelect<false> | CategoriesJeuxSelect<true>;
     emprunts: EmpruntsSelect<false> | EmpruntsSelect<true>;
+    historiqueEmprunt: HistoriqueEmpruntSelect<false> | HistoriqueEmpruntSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -95,7 +99,14 @@ export interface Config {
     collection: 'users';
   };
   jobs: {
-    tasks: unknown;
+    tasks: {
+      sendClientReminder: TaskSendClientReminder;
+      sendAdminReminder: TaskSendAdminReminder;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -123,7 +134,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
-  role: 'admin' | 'user';
+  role: 'bureau' | 'passePartout';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -144,7 +155,7 @@ export interface User {
 export interface Jeux {
   id: number;
   name: string;
-  categorie: number | CategoriesJeux;
+  categorie: (number | CategoriesJeux)[];
   aquisitionDate?: string | null;
   playingTime?: string | null;
   nbMinPlayers?: number | null;
@@ -171,8 +182,118 @@ export interface CategoriesJeux {
 export interface Emprunt {
   id: number;
   game: number | Jeux;
-  borrower: string;
+  borrowerName: string;
+  borrower?: string | null;
+  jobIds?: number[] | null;
   dateRetour: string;
+  createdBy?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "historiqueEmprunt".
+ */
+export interface HistoriqueEmprunt {
+  id: number;
+  game: number | Jeux;
+  borrowerName: string;
+  borrower?: string | null;
+  jobIds?: number[] | null;
+  dateRetour: string;
+  createdBy?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: number;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'sendClientReminder' | 'sendAdminReminder';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'sendClientReminder' | 'sendAdminReminder') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -198,6 +319,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'emprunts';
         value: number | Emprunt;
+      } | null)
+    | ({
+        relationTo: 'historiqueEmprunt';
+        value: number | HistoriqueEmprunt;
+      } | null)
+    | ({
+        relationTo: 'payload-jobs';
+        value: number | PayloadJob;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -290,8 +419,56 @@ export interface CategoriesJeuxSelect<T extends boolean = true> {
  */
 export interface EmpruntsSelect<T extends boolean = true> {
   game?: T;
+  borrowerName?: T;
   borrower?: T;
+  jobIds?: T;
   dateRetour?: T;
+  createdBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "historiqueEmprunt_select".
+ */
+export interface HistoriqueEmpruntSelect<T extends boolean = true> {
+  game?: T;
+  borrowerName?: T;
+  borrower?: T;
+  jobIds?: T;
+  dateRetour?: T;
+  createdBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -326,6 +503,30 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSendClientReminder".
+ */
+export interface TaskSendClientReminder {
+  input: {
+    email: string;
+    name: string;
+    gameName: string;
+  };
+  output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSendAdminReminder".
+ */
+export interface TaskSendAdminReminder {
+  input: {
+    email: string;
+    name: string;
+    gameName: string;
+  };
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
