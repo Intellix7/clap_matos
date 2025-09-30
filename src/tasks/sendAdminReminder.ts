@@ -6,12 +6,12 @@ export const sendAdminReminder: TaskHandler<'sendAdminReminder'> = async ({
   job,
   req,
 }) => {
-  const { email, name, gameName } = input;
+  const { email, name, gamesName } = input;
 
   await req.payload.sendEmail({
     to: email,
     subject: 'Emprunt Jeux de Société - Rappel',
-    html: adminMailTemplate(name, gameName),
+    html: adminMailTemplate(name, gamesName),
   });
 
   return {
@@ -34,8 +34,9 @@ export const sendAdminReminderTask: TaskConfig<'sendAdminReminder'> = {
     },
     {
       type: 'text',
-      name: 'gameName',
+      name: 'gamesName',
       required: true,
+      hasMany: true,
     },
   ],
   handler: sendAdminReminder,

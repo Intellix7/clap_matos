@@ -1,6 +1,7 @@
-import { Jeux } from '@/payload-types';
 import { isUser } from '@/service/accessControl';
+import { borrowGame, returnGame } from '@/service/borrowGames';
 import populateCreatedBy from '@/service/populateCreatedBy';
+import getGamesFromEmprunt from '@/utils/getGamesFromEmprunt';
 import type { CollectionConfig } from 'payload';
 
 export const Emprunts: CollectionConfig = {
@@ -16,14 +17,15 @@ export const Emprunts: CollectionConfig = {
     plural: 'Emprunts',
   },
   admin: {
-    useAsTitle: 'game',
+    useAsTitle: 'games',
   },
   fields: [
     {
-      name: 'game',
+      name: 'games',
       type: 'relationship',
       relationTo: 'jeux',
       required: true,
+      hasMany: true,
       label: 'Jeu',
       filterOptions: {
         nbGamesAvailable: {
@@ -82,20 +84,35 @@ export const Emprunts: CollectionConfig = {
     ],
 
     afterChange: [
-      async ({ req, doc, operation }) => {
+      async ({ req, doc, operation, previousDoc }) => {
         if (operation !== 'create') {
+          const previousGames = await getGamesFromEmprunt(previousDoc, req);
+          const currentGames = await getGamesFromEmprunt(doc, req);
+
+          const removedGames = previousGames.filter(
+            (pg) => !currentGames.find((cg) => cg.id === pg.id)
+          );
+          const addedGames = currentGames.filter(
+            (cg) => !previousGames.find((pg) => pg.id === cg.id)
+          );
+
+          const nbGamesAvailable = addedGames.map((g) => g.nbGamesAvailable);
+          if (nbGamesAvailable.some((available) => available <= 0)) {
+            throw new Error(
+              `Le jeu ${addedGames.find((g) => g.nbGamesAvailable <= 0)?.name} est déjà emprunté.`
+            );
+          }
+
+          // Mark the added games as borrowed
+          await Promise.all(addedGames.map((game) => borrowGame(game, req)));
+
+          // Mark the removed games as returned
+          await Promise.all(removedGames.map((game) => returnGame(game, req)));
+
           return;
         }
 
-        let game: Jeux;
-        if (typeof doc.game === 'number') {
-          game = await req.payload.findByID({
-            id: doc.game,
-            collection: 'jeux',
-          });
-        } else {
-          game = doc.game as Jeux;
-        }
+        const games = await getGamesFromEmprunt(doc, req);
 
         const userMailDate = new Date(
           new Date(doc.dateRetour).getTime() - 1 * 24 * 60 * 60 * 1000
@@ -106,13 +123,12 @@ export const Emprunts: CollectionConfig = {
         ); // 1 day after return date
 
         let jobIds: number[] = [];
-
         if (doc.borrower && userMailDate > new Date()) {
           const clientJob = await req.payload.jobs.queue({
             task: 'sendClientReminder',
             input: {
               email: doc.borrower,
-              gameName: game.name,
+              gamesName: games.map((g) => g.name),
               name: doc.borrowerName,
             },
             waitUntil: userMailDate,
@@ -125,7 +141,7 @@ export const Emprunts: CollectionConfig = {
             task: 'sendAdminReminder',
             input: {
               email: req.user?.email || '',
-              gameName: game.name,
+              gamesName: games.map((g) => g.name),
               name: doc.borrowerName,
             },
             waitUntil: adminMailDate,
@@ -135,40 +151,31 @@ export const Emprunts: CollectionConfig = {
 
         // Save jobIds back into the Emprunt doc
         if (jobIds.length > 0) {
-          const test = await req.payload.update({
+          await req.payload.update({
             id: doc.id,
             collection: 'emprunts',
             data: { jobIds },
           });
         }
 
-        const nbGamesAvailable = game.nbGamesAvailable;
+        const nbGamesAvailable = games.map((g) => g.nbGamesAvailable);
 
-        if (nbGamesAvailable <= 0) {
-          throw new Error('Ce jeu est déjà emprunté.');
+        if (nbGamesAvailable.some((available) => available <= 0)) {
+          throw new Error(
+            `Le jeu ${games.find((g) => g.nbGamesAvailable <= 0)?.name} est déjà emprunté.`
+          );
         }
 
-        // Mark the game as borrowed
-        await req.payload.update({
-          id: game.id,
-          collection: 'jeux',
-          data: { nbGamesAvailable: nbGamesAvailable - 1 },
-        });
+        // Mark the games as borrowed
+        await Promise.all(games.map((game) => borrowGame(game, req)));
       },
     ],
+
     afterDelete: [
       async ({ req, doc }) => {
-        let game: Jeux;
-        if (typeof doc.game === 'number') {
-          game = await req.payload.findByID({
-            id: doc.game,
-            collection: 'jeux',
-          });
-        } else {
-          game = doc.game as Jeux;
-        }
+        let games = await getGamesFromEmprunt(doc, req);
 
-        const result = await Promise.all([
+        await Promise.all([
           // Log the emprunt in the historiqueEmprunt collection
           req.payload.create({
             collection: 'historiqueEmprunt',
@@ -182,12 +189,8 @@ export const Emprunts: CollectionConfig = {
             },
           }),
 
-          // Mark the game as not borrowed when the emprunt is deleted
-          req.payload.update({
-            id: game.id,
-            collection: 'jeux',
-            data: { nbGamesAvailable: game.nbGamesAvailable + 1 },
-          }),
+          // Mark the games as returned when the emprunt is deleted
+          games.map((game) => returnGame(game, req)),
         ]);
       },
     ],

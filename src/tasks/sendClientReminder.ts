@@ -6,12 +6,12 @@ export const sendClientReminder: TaskHandler<'sendClientReminder'> = async ({
   job,
   req,
 }) => {
-  const { email, name, gameName } = input;
+  const { email, name, gamesName } = input;
 
   await req.payload.sendEmail({
     to: email,
     subject: 'Emprunt Jeux de Société - Rappel',
-    html: clientMailTemplate(name, gameName),
+    html: clientMailTemplate(name, gamesName),
   });
 
   return {
@@ -34,8 +34,9 @@ export const sendClientReminderTask: TaskConfig<'sendClientReminder'> = {
     },
     {
       type: 'text',
-      name: 'gameName',
+      name: 'gamesName',
       required: true,
+      hasMany: true,
     },
   ],
   handler: sendClientReminder,

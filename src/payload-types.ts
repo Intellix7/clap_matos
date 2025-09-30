@@ -181,7 +181,7 @@ export interface CategoriesJeux {
  */
 export interface Emprunt {
   id: number;
-  game: number | Jeux;
+  games: (number | Jeux)[];
   borrowerName: string;
   borrower?: string | null;
   jobIds?: number[] | null;
@@ -196,7 +196,7 @@ export interface Emprunt {
  */
 export interface HistoriqueEmprunt {
   id: number;
-  game: number | Jeux;
+  games: (number | Jeux)[];
   borrowerName: string;
   borrower?: string | null;
   jobIds?: number[] | null;
@@ -418,7 +418,7 @@ export interface CategoriesJeuxSelect<T extends boolean = true> {
  * via the `definition` "emprunts_select".
  */
 export interface EmpruntsSelect<T extends boolean = true> {
-  game?: T;
+  games?: T;
   borrowerName?: T;
   borrower?: T;
   jobIds?: T;
@@ -432,7 +432,7 @@ export interface EmpruntsSelect<T extends boolean = true> {
  * via the `definition` "historiqueEmprunt_select".
  */
 export interface HistoriqueEmpruntSelect<T extends boolean = true> {
-  game?: T;
+  games?: T;
   borrowerName?: T;
   borrower?: T;
   jobIds?: T;
@@ -512,7 +512,7 @@ export interface TaskSendClientReminder {
   input: {
     email: string;
     name: string;
-    gameName: string;
+    gamesName: string[];
   };
   output?: unknown;
 }
@@ -524,7 +524,7 @@ export interface TaskSendAdminReminder {
   input: {
     email: string;
     name: string;
-    gameName: string;
+    gamesName: string[];
   };
   output?: unknown;
 }
