@@ -1,0 +1,54 @@
+type SpriteMap = {
+  socials: 'facebook' | 'linkedin' | 'instagram';
+  chevrons: 'chevron-right' | 'chevron-left' | 'chevron-up' | 'chevron-down';
+  icons: 'book' | 'bookmark' | 'clock' | 'group' | 'warehouse';
+};
+
+type IconProps<T extends keyof SpriteMap = keyof SpriteMap> = {
+  sprite: T;
+  id: SpriteMap[T];
+  hoverColor?: string;
+  width?: number | string;
+  height?: number | string;
+  className?: string;
+};
+
+function Icon<T extends keyof SpriteMap>({
+  sprite,
+  id,
+  hoverColor,
+  width = 25,
+  height = 25,
+  className,
+}: IconProps<T>) {
+  const handleMouseEnter = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    if (hoverColor) {
+      e.currentTarget.style.color = hoverColor;
+    }
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    if (hoverColor) {
+      e.currentTarget.style.color = 'inherit';
+    }
+  };
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      className={className}
+      style={{
+        color: 'inherit',
+        transition: hoverColor ? 'color 0.3s' : undefined,
+      }}
+      onMouseEnter={hoverColor ? handleMouseEnter : undefined}
+      onMouseLeave={hoverColor ? handleMouseLeave : undefined}
+      fill='currentColor'
+    >
+      <use href={`/${sprite}-sprite.svg#${id}`} />
+    </svg>
+  );
+}
+
+export default Icon;
