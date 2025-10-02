@@ -1,0 +1,26 @@
+interface InputProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+}
+
+const Input: React.FC<InputProps> = ({
+  value,
+  onChange,
+  placeholder,
+  className,
+}) => {
+  return (
+    <input
+      type='text'
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      className={`border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+      aria-label='Recherche de jeu'
+    />
+  );
+};
+
+export default Input;

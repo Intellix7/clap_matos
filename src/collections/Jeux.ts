@@ -38,10 +38,21 @@ export const Jeux: CollectionConfig = {
       defaultValue: () => new Date(),
     },
     {
-      name: 'playingTime',
-      type: 'text',
-      label: 'Temps de jeu (en minutes)',
-      required: false,
+      type: 'row',
+      fields: [
+        {
+          name: 'minPlayingTime',
+          type: 'number',
+          label: 'Temps de jeu minimal (en minutes)',
+          required: false,
+        },
+        {
+          name: 'maxPlayingTime',
+          type: 'number',
+          label: 'Temps de jeu maximal (en minutes)',
+          required: false,
+        },
+      ],
     },
     {
       type: 'row',
@@ -55,7 +66,7 @@ export const Jeux: CollectionConfig = {
         {
           name: 'nbMaxPlayers',
           type: 'number',
-          label: 'Nombre maximum de joueurs',
+          label: 'Nombre maximum de joueurs (si infini mettre plus de 100)',
           required: false,
         },
       ],

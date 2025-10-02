@@ -157,7 +157,8 @@ export interface Jeux {
   name: string;
   categorie: (number | CategoriesJeux)[];
   aquisitionDate?: string | null;
-  playingTime?: string | null;
+  minPlayingTime?: number | null;
+  maxPlayingTime?: number | null;
   nbMinPlayers?: number | null;
   nbMaxPlayers?: number | null;
   nbGames: number;
@@ -396,7 +397,8 @@ export interface JeuxSelect<T extends boolean = true> {
   name?: T;
   categorie?: T;
   aquisitionDate?: T;
-  playingTime?: T;
+  minPlayingTime?: T;
+  maxPlayingTime?: T;
   nbMinPlayers?: T;
   nbMaxPlayers?: T;
   nbGames?: T;

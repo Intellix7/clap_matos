@@ -1,10 +1,10 @@
 type SpriteMap = {
   socials: 'facebook' | 'linkedin' | 'instagram';
   chevrons: 'chevron-right' | 'chevron-left' | 'chevron-up' | 'chevron-down';
-  icons: 'book' | 'bookmark' | 'clock' | 'group' | 'warehouse';
+  table: 'book' | 'bookmark' | 'clock' | 'group' | 'warehouse';
 };
 
-type IconProps<T extends keyof SpriteMap = keyof SpriteMap> = {
+export type IconProps<T extends keyof SpriteMap = keyof SpriteMap> = {
   sprite: T;
   id: SpriteMap[T];
   hoverColor?: string;
@@ -38,6 +38,7 @@ function Icon<T extends keyof SpriteMap>({
       width={width}
       height={height}
       className={className}
+      aria-hidden='true'
       style={{
         color: 'inherit',
         transition: hoverColor ? 'color 0.3s' : undefined,

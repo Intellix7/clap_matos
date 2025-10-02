@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <symbol id="book" viewBox="0 0 16 16">
-    <path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+  <symbol id="book" viewBox="0 0 432 512">
+    <path d="M67 512h362v-43H67q-22 0-22-21t22-21h362V0H67Q39 0 21 18.5T3 64v363h4q-4 12-4 21q0 27 18 45.5T67 512zM45 64q0-21 22-21h320v341H67q-8 0-22 4V64zm86 107h192v42H131v-42zm0-86h192v43H131V85z"/>
   </symbol>
 
   <symbol id="bookmark" viewBox="0 0 16 16">
     <path d="M2 0H14V16H12L8 12L4 16H2V0Z"/>
   </symbol>
 
-  <symbol id="clock" viewBox="0 0 24 24">
+  <symbol fill="none" id="clock" viewBox="0 0 24 24">
     <path d="M12 7V12L14.5 10.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
 
