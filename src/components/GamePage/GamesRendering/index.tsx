@@ -106,7 +106,9 @@ const GamesRendering: React.FC<GamesRenderingProps> = ({ games }) => {
 
         case 4: {
           // Availability
-          return a.nbGamesAvailable - b.nbGamesAvailable;
+          return sortState.direction === 'asc'
+            ? a.nbGamesAvailable - b.nbGamesAvailable
+            : b.nbGamesAvailable - a.nbGamesAvailable;
         }
         default:
           return 0;
