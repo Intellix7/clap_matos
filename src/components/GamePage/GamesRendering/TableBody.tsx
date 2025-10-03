@@ -12,8 +12,8 @@ interface TableBodyProps {
 
 const TableBody: React.FC<TableBodyProps> = ({ games }) => {
   return (
-    <tbody className='bg-gray-200'>
-      {games.map((game) => {
+    <tbody>
+      {games.map((game, idx) => {
         const name = game.name;
         const category = game.categorie
           .filter((cat) => typeof cat === 'object')
@@ -25,7 +25,10 @@ const TableBody: React.FC<TableBodyProps> = ({ games }) => {
         const available = game.nbGamesAvailable > 0;
 
         return (
-          <TR key={game.id} className='relative'>
+          <TR
+            key={game.id}
+            className={`relative ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-200'}`}
+          >
             <TD>{name}</TD>
             <TD>{category}</TD>
             <TD>{time}</TD>
@@ -38,7 +41,7 @@ const TableBody: React.FC<TableBodyProps> = ({ games }) => {
                   rel='noopener noreferrer'
                   href={game.ruleUrl}
                   aria-label={`Voir les règles du jeu ${name}`}
-                  className='after:absolute after:inset-0 link'
+                  className='after:absolute sm:after:inset-0 link'
                 >
                   Voir les règles
                 </a>

@@ -4,7 +4,7 @@ export const TR: React.FC<{
   children: React.ReactNode;
   className?: string;
 }> = ({ children, className }) => (
-  <tr className={`border-b ${className ?? ''}`}>{children}</tr>
+  <tr className={`${className ?? ''}`}>{children}</tr>
 );
 
 export const TH: React.FC<{

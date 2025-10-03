@@ -29,7 +29,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({ sortState, onReorder }) => {
   ];
 
   return (
-    <thead className='bg-gray-200'>
+    <thead className='table-header shadow-sm'>
       <TR>
         {columnLabels.map((label, index) => (
           <TH key={index} ariaLabel={label}>

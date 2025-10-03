@@ -1,4 +1,3 @@
-// GamesRendering.tsx
 import { Jeux } from '@/payload-types';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
@@ -119,8 +118,8 @@ const GamesRendering: React.FC<GamesRenderingProps> = ({ games }) => {
   }, [games, sortState]);
 
   return (
-    <div className='w-full overflow-x-auto'>
-      <table className='w-full table-auto border-collapse'>
+    <div className='w-full overflow-x-auto mb-4'>
+      <table className='w-full table-auto border-collapse game-table'>
         <TableHeader sortState={sortState} onReorder={handleReorder} />
         <TableBody games={sortedGames} />
       </table>

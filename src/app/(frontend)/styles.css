@@ -15,12 +15,27 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: gray;
 }
 .reordering-button:hover {
   color: black;
 }
 
 .reordering-button.active {
-  color: black
+  color: black;
+}
+
+.table-header {
+  background-color: #feef18;
+}
+
+.game-table {
+  border-color: #ff7d00;
+  border-width: 2px;
+  border-style: solid;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.game-search-input:focus {
+  border-color: #ff7d00;
 }
