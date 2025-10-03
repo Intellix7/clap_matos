@@ -1,7 +1,13 @@
 type SpriteMap = {
   socials: 'facebook' | 'linkedin' | 'instagram';
-  chevrons: 'chevron-right' | 'chevron-left' | 'chevron-up' | 'chevron-down';
-  table: 'book' | 'bookmark' | 'clock' | 'group' | 'warehouse';
+  chevron: 'chevron-right' | 'chevron-left' | 'chevron-up' | 'chevron-down';
+  table:
+    | 'book'
+    | 'bookmark'
+    | 'clock'
+    | 'group'
+    | 'warehouse'
+    | 'external-link';
 };
 
 export type IconProps<T extends keyof SpriteMap = keyof SpriteMap> = {

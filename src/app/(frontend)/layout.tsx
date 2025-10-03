@@ -13,7 +13,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   return (
     <html lang='fr'>
-      <body className='min-h-screen bg-white flex flex-col items-center'>
+      <body className='min-h-screen bg-white w-full flex flex-col'>
         <Header />
         <main>{children}</main>
       </body>

@@ -156,6 +156,7 @@ export interface Jeux {
   id: number;
   name: string;
   categorie: (number | CategoriesJeux)[];
+  ruleUrl?: string | null;
   aquisitionDate?: string | null;
   minPlayingTime?: number | null;
   maxPlayingTime?: number | null;
@@ -396,6 +397,7 @@ export interface UsersSelect<T extends boolean = true> {
 export interface JeuxSelect<T extends boolean = true> {
   name?: T;
   categorie?: T;
+  ruleUrl?: T;
   aquisitionDate?: T;
   minPlayingTime?: T;
   maxPlayingTime?: T;

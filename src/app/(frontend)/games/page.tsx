@@ -8,6 +8,9 @@ export default async function GamePage() {
 
   return (
     <div>
+      <h1 className='text-3xl font-bold text-center mb-8'>
+        Catalogue des jeux
+      </h1>
       <GamePageRender games={games} />
     </div>
   );

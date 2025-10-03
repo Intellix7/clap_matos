@@ -25,7 +25,7 @@ const GamePageRender: React.FC<GamePageRenderProps> = ({ games }) => {
   });
 
   return (
-    <div>
+    <div className='container flex flex-col mx-auto items-center px-4 max-w-[1000px]'>
       <Input
         placeholder='Rechercher un jeu...'
         value={searchTerm}

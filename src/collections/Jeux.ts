@@ -32,10 +32,14 @@ export const Jeux: CollectionConfig = {
       hasMany: true,
     },
     {
+      name: 'ruleUrl',
+      type: 'text',
+      label: 'URL des règles',
+    },
+    {
       name: 'aquisitionDate',
       type: 'date',
       label: "Date d'acquisition",
-      defaultValue: () => new Date(),
     },
     {
       type: 'row',

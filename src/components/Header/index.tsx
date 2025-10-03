@@ -13,7 +13,7 @@ export default function Header() {
   ];
 
   return (
-    <header className='text-dark flex flex-col items-center pt-15 pb-20 px-8 text-center'>
+    <header className='text-dark flex flex-col items-center pt-15 pb-15 px-8 text-center'>
       <LogoLink isActive={pathname === '/'} />
       <p className='text-gray-500 mb-4'>
         Le site de Centr'All Games, l'association de jeux de société de Centrale

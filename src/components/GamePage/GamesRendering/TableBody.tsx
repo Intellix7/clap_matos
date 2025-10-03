@@ -25,12 +25,27 @@ const TableBody: React.FC<TableBodyProps> = ({ games }) => {
         const available = game.nbGamesAvailable > 0;
 
         return (
-          <TR key={game.id}>
+          <TR key={game.id} className='relative'>
             <TD>{name}</TD>
             <TD>{category}</TD>
             <TD>{time}</TD>
             <TD>{players}</TD>
             <TD>{available ? 'Disponible' : 'Emprunté'}</TD>
+            <TD>
+              {game.ruleUrl ? (
+                <a
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  href={game.ruleUrl}
+                  aria-label={`Voir les règles du jeu ${name}`}
+                  className='after:absolute after:inset-0 link'
+                >
+                  Voir les règles
+                </a>
+              ) : (
+                '-'
+              )}
+            </TD>
           </TR>
         );
       })}

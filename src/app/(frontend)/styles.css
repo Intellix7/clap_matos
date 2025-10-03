@@ -1,5 +1,26 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 .header-link:hover {
   color: #f30000;
+}
+
+.link {
+  font-weight: bold;
+}
+.link:hover {
+  color: #f30000;
+}
+
+.reordering-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: gray;
+}
+.reordering-button:hover {
+  color: black;
+}
+
+.reordering-button.active {
+  color: black
 }

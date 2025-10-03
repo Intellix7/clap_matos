@@ -1,4 +1,3 @@
-import { getGames } from '@/service/data';
 import React from 'react';
 
 export default async function HomePage() {

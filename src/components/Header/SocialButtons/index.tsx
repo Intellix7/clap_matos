@@ -1,5 +1,4 @@
 import Icon from '@/utils/Icons';
-import Link from 'next/link';
 
 const SocialButtons: React.FC = () => {
   const socials: Array<{
@@ -27,9 +26,9 @@ const SocialButtons: React.FC = () => {
   return (
     <div className='flex space-x-4'>
       {socials.map(({ href, platform, hoverColor }) => (
-        <Link key={platform} href={href}>
+        <a key={platform} href={href} target='_blank' rel='noopener noreferrer'>
           <Icon sprite='socials' id={platform} hoverColor={hoverColor} />
-        </Link>
+        </a>
       ))}
     </div>
   );
