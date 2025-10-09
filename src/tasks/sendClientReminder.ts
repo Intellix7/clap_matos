@@ -3,7 +3,6 @@ import { TaskConfig, TaskHandler } from 'payload';
 
 export const sendClientReminder: TaskHandler<'sendClientReminder'> = async ({
   input,
-  job,
   req,
 }) => {
   const { email, name, gamesName } = input;

@@ -1,4 +1,4 @@
-import { isBureau, isUser } from '@/service/accessControl';
+import { isBureau } from '@/service/accessControl';
 import type { CollectionConfig } from 'payload';
 
 export const Jeux: CollectionConfig = {

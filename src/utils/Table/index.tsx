@@ -4,7 +4,12 @@ export const TR: React.FC<{
   children: React.ReactNode;
   className?: string;
 }> = ({ children, className }) => (
-  <tr className={`${className ?? ''}`}>{children}</tr>
+  <tr
+    className={`${className ?? ''}`}
+    style={{ transform: 'scale(1)' }} // Fixes some rendering issues in Safari
+  >
+    {children}
+  </tr>
 );
 
 export const TH: React.FC<{

@@ -27,7 +27,7 @@ const TableBody: React.FC<TableBodyProps> = ({ games }) => {
         return (
           <TR
             key={game.id}
-            className={`relative ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-200'}`}
+            className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-200'}`}
           >
             <TD>{name}</TD>
             <TD>{category}</TD>

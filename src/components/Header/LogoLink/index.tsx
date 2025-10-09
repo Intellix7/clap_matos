@@ -20,7 +20,7 @@ const LogoLink: React.FC<LogoLinkProps> = ({ isActive }) => {
         height={100}
         className='mb-3'
       />
-      <p className='text-3xl font-bold'>Centr'All Games</p>
+      <p className='text-3xl font-bold'>Centr&apos;All Games</p>
     </Link>
   );
 };

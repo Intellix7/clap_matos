@@ -1,12 +1,12 @@
 import { isBureau, isUser } from '@/service/accessControl';
-import { CollectionConfig, Field } from 'payload';
+import { CollectionConfig } from 'payload';
 import { Emprunts } from './Emprunts';
 
 // Remove filterOptions from fields
 const fieldsWithoutFilterOptions = Emprunts.fields.map((field) => {
-  const f = { ...(field as any) };
-  delete f.filterOptions;
-  return f as Field;
+  const f = { ...field };
+  if ('filterOptions' in f) delete f.filterOptions;
+  return f;
 });
 
 export const HistoriqueEmprunt: CollectionConfig = {

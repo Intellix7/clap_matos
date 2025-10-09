@@ -122,7 +122,7 @@ export const Emprunts: CollectionConfig = {
           new Date(doc.dateRetour).getTime() + 1 * 24 * 60 * 60 * 1000
         ); // 1 day after return date
 
-        let jobIds: number[] = [];
+        const jobIds: number[] = [];
         if (doc.borrower && userMailDate > new Date()) {
           const clientJob = await req.payload.jobs.queue({
             task: 'sendClientReminder',
@@ -173,7 +173,7 @@ export const Emprunts: CollectionConfig = {
 
     afterDelete: [
       async ({ req, doc }) => {
-        let games = await getGamesFromEmprunt(doc, req);
+        const games = await getGamesFromEmprunt(doc, req);
 
         await Promise.all([
           // Log the emprunt in the historiqueEmprunt collection

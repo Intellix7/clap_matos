@@ -18,13 +18,37 @@ import {
 } from "@payloadcms/db-sqlite/drizzle/sqlite-core";
 import { sql, relations } from "@payloadcms/db-sqlite/drizzle";
 
+export const users_sessions = sqliteTable(
+  "users_sessions",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: text("id").primaryKey(),
+    createdAt: text("created_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    expiresAt: text("expires_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (columns) => ({
+    _orderIdx: index("users_sessions_order_idx").on(columns._order),
+    _parentIDIdx: index("users_sessions_parent_id_idx").on(columns._parentID),
+    _parentIDFk: foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [users.id],
+      name: "users_sessions_parent_id_fk",
+    }).onDelete("cascade"),
+  }),
+);
+
 export const users = sqliteTable(
   "users",
   {
     id: integer("id").primaryKey(),
-    role: text("role", { enum: ["admin", "user"] })
+    role: text("role", { enum: ["bureau", "passePartout"] })
       .notNull()
-      .default("user"),
+      .default("passePartout"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -57,15 +81,16 @@ export const jeux = sqliteTable(
   {
     id: integer("id").primaryKey(),
     name: text("name").notNull(),
-    categorie: integer("categorie_id")
-      .notNull()
-      .references(() => categories_jeux.id, {
-        onDelete: "set null",
-      }),
+    ruleUrl: text("rule_url"),
     aquisitionDate: text("aquisition_date").default(
       sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
     ),
-    borrowed: integer("borrowed", { mode: "boolean" }).default(false),
+    minPlayingTime: numeric("min_playing_time"),
+    maxPlayingTime: numeric("max_playing_time"),
+    nbMinPlayers: numeric("nb_min_players"),
+    nbMaxPlayers: numeric("nb_max_players"),
+    nbGames: numeric("nb_games").notNull().default("1"),
+    nbGamesAvailable: numeric("nb_games_available").notNull().default("-1"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -74,9 +99,37 @@ export const jeux = sqliteTable(
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
   },
   (columns) => ({
-    jeux_categorie_idx: index("jeux_categorie_idx").on(columns.categorie),
     jeux_updated_at_idx: index("jeux_updated_at_idx").on(columns.updatedAt),
     jeux_created_at_idx: index("jeux_created_at_idx").on(columns.createdAt),
+  }),
+);
+
+export const jeux_rels = sqliteTable(
+  "jeux_rels",
+  {
+    id: integer("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: text("path").notNull(),
+    categoriesJeuxID: integer("categories_jeux_id"),
+  },
+  (columns) => ({
+    order: index("jeux_rels_order_idx").on(columns.order),
+    parentIdx: index("jeux_rels_parent_idx").on(columns.parent),
+    pathIdx: index("jeux_rels_path_idx").on(columns.path),
+    jeux_rels_categories_jeux_id_idx: index(
+      "jeux_rels_categories_jeux_id_idx",
+    ).on(columns.categoriesJeuxID),
+    parentFk: foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [jeux.id],
+      name: "jeux_rels_parent_fk",
+    }).onDelete("cascade"),
+    categoriesJeuxIdFk: foreignKey({
+      columns: [columns["categoriesJeuxID"]],
+      foreignColumns: [categories_jeux.id],
+      name: "jeux_rels_categories_jeux_fk",
+    }).onDelete("cascade"),
   }),
 );
 
@@ -106,15 +159,14 @@ export const emprunts = sqliteTable(
   "emprunts",
   {
     id: integer("id").primaryKey(),
-    game: integer("game_id")
-      .notNull()
-      .references(() => jeux.id, {
-        onDelete: "set null",
-      }),
-    borrower: text("borrower").notNull(),
+    borrowerName: text("borrower_name").notNull(),
+    borrower: text("borrower"),
     dateRetour: text("date_retour")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    createdBy: integer("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -123,11 +175,234 @@ export const emprunts = sqliteTable(
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
   },
   (columns) => ({
-    emprunts_game_idx: index("emprunts_game_idx").on(columns.game),
+    emprunts_created_by_idx: index("emprunts_created_by_idx").on(
+      columns.createdBy,
+    ),
     emprunts_updated_at_idx: index("emprunts_updated_at_idx").on(
       columns.updatedAt,
     ),
     emprunts_created_at_idx: index("emprunts_created_at_idx").on(
+      columns.createdAt,
+    ),
+  }),
+);
+
+export const emprunts_numbers = sqliteTable(
+  "emprunts_numbers",
+  {
+    id: integer("id").primaryKey(),
+    number: numeric("number"),
+    order: integer("order").notNull(),
+    parent: integer("parent_id").notNull(),
+    path: text("path").notNull(),
+  },
+  (columns) => ({
+    orderParentIdx: index("emprunts_numbers_order_parent_idx").on(
+      columns.order,
+      columns.parent,
+    ),
+    parentFk: foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [emprunts.id],
+      name: "emprunts_numbers_parent_fk",
+    }).onDelete("cascade"),
+  }),
+);
+
+export const emprunts_rels = sqliteTable(
+  "emprunts_rels",
+  {
+    id: integer("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: text("path").notNull(),
+    jeuxID: integer("jeux_id"),
+  },
+  (columns) => ({
+    order: index("emprunts_rels_order_idx").on(columns.order),
+    parentIdx: index("emprunts_rels_parent_idx").on(columns.parent),
+    pathIdx: index("emprunts_rels_path_idx").on(columns.path),
+    emprunts_rels_jeux_id_idx: index("emprunts_rels_jeux_id_idx").on(
+      columns.jeuxID,
+    ),
+    parentFk: foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [emprunts.id],
+      name: "emprunts_rels_parent_fk",
+    }).onDelete("cascade"),
+    jeuxIdFk: foreignKey({
+      columns: [columns["jeuxID"]],
+      foreignColumns: [jeux.id],
+      name: "emprunts_rels_jeux_fk",
+    }).onDelete("cascade"),
+  }),
+);
+
+export const historique_emprunt = sqliteTable(
+  "historique_emprunt",
+  {
+    id: integer("id").primaryKey(),
+    borrowerName: text("borrower_name").notNull(),
+    borrower: text("borrower"),
+    dateRetour: text("date_retour")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    createdBy: integer("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (columns) => ({
+    historique_emprunt_created_by_idx: index(
+      "historique_emprunt_created_by_idx",
+    ).on(columns.createdBy),
+    historique_emprunt_updated_at_idx: index(
+      "historique_emprunt_updated_at_idx",
+    ).on(columns.updatedAt),
+    historique_emprunt_created_at_idx: index(
+      "historique_emprunt_created_at_idx",
+    ).on(columns.createdAt),
+  }),
+);
+
+export const historique_emprunt_numbers = sqliteTable(
+  "historique_emprunt_numbers",
+  {
+    id: integer("id").primaryKey(),
+    number: numeric("number"),
+    order: integer("order").notNull(),
+    parent: integer("parent_id").notNull(),
+    path: text("path").notNull(),
+  },
+  (columns) => ({
+    orderParentIdx: index("historique_emprunt_numbers_order_parent_idx").on(
+      columns.order,
+      columns.parent,
+    ),
+    parentFk: foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [historique_emprunt.id],
+      name: "historique_emprunt_numbers_parent_fk",
+    }).onDelete("cascade"),
+  }),
+);
+
+export const historique_emprunt_rels = sqliteTable(
+  "historique_emprunt_rels",
+  {
+    id: integer("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: text("path").notNull(),
+    jeuxID: integer("jeux_id"),
+  },
+  (columns) => ({
+    order: index("historique_emprunt_rels_order_idx").on(columns.order),
+    parentIdx: index("historique_emprunt_rels_parent_idx").on(columns.parent),
+    pathIdx: index("historique_emprunt_rels_path_idx").on(columns.path),
+    historique_emprunt_rels_jeux_id_idx: index(
+      "historique_emprunt_rels_jeux_id_idx",
+    ).on(columns.jeuxID),
+    parentFk: foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [historique_emprunt.id],
+      name: "historique_emprunt_rels_parent_fk",
+    }).onDelete("cascade"),
+    jeuxIdFk: foreignKey({
+      columns: [columns["jeuxID"]],
+      foreignColumns: [jeux.id],
+      name: "historique_emprunt_rels_jeux_fk",
+    }).onDelete("cascade"),
+  }),
+);
+
+export const payload_jobs_log = sqliteTable(
+  "payload_jobs_log",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: text("id").primaryKey(),
+    executedAt: text("executed_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    completedAt: text("completed_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    taskSlug: text("task_slug", {
+      enum: ["inline", "sendClientReminder", "sendAdminReminder"],
+    }).notNull(),
+    taskID: text("task_i_d").notNull(),
+    input: text("input", { mode: "json" }),
+    output: text("output", { mode: "json" }),
+    state: text("state", { enum: ["failed", "succeeded"] }).notNull(),
+    error: text("error", { mode: "json" }),
+  },
+  (columns) => ({
+    _orderIdx: index("payload_jobs_log_order_idx").on(columns._order),
+    _parentIDIdx: index("payload_jobs_log_parent_id_idx").on(columns._parentID),
+    _parentIDFk: foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [payload_jobs.id],
+      name: "payload_jobs_log_parent_id_fk",
+    }).onDelete("cascade"),
+  }),
+);
+
+export const payload_jobs = sqliteTable(
+  "payload_jobs",
+  {
+    id: integer("id").primaryKey(),
+    input: text("input", { mode: "json" }),
+    completedAt: text("completed_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    totalTried: numeric("total_tried").default("0"),
+    hasError: integer("has_error", { mode: "boolean" }).default(false),
+    error: text("error", { mode: "json" }),
+    taskSlug: text("task_slug", {
+      enum: ["inline", "sendClientReminder", "sendAdminReminder"],
+    }),
+    queue: text("queue").default("default"),
+    waitUntil: text("wait_until").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    processing: integer("processing", { mode: "boolean" }).default(false),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (columns) => ({
+    payload_jobs_completed_at_idx: index("payload_jobs_completed_at_idx").on(
+      columns.completedAt,
+    ),
+    payload_jobs_total_tried_idx: index("payload_jobs_total_tried_idx").on(
+      columns.totalTried,
+    ),
+    payload_jobs_has_error_idx: index("payload_jobs_has_error_idx").on(
+      columns.hasError,
+    ),
+    payload_jobs_task_slug_idx: index("payload_jobs_task_slug_idx").on(
+      columns.taskSlug,
+    ),
+    payload_jobs_queue_idx: index("payload_jobs_queue_idx").on(columns.queue),
+    payload_jobs_wait_until_idx: index("payload_jobs_wait_until_idx").on(
+      columns.waitUntil,
+    ),
+    payload_jobs_processing_idx: index("payload_jobs_processing_idx").on(
+      columns.processing,
+    ),
+    payload_jobs_updated_at_idx: index("payload_jobs_updated_at_idx").on(
+      columns.updatedAt,
+    ),
+    payload_jobs_created_at_idx: index("payload_jobs_created_at_idx").on(
       columns.createdAt,
     ),
   }),
@@ -169,6 +444,8 @@ export const payload_locked_documents_rels = sqliteTable(
     jeuxID: integer("jeux_id"),
     categoriesJeuxID: integer("categories_jeux_id"),
     empruntsID: integer("emprunts_id"),
+    historiqueEmpruntID: integer("historique_emprunt_id"),
+    "payload-jobsID": integer("payload_jobs_id"),
   },
   (columns) => ({
     order: index("payload_locked_documents_rels_order_idx").on(columns.order),
@@ -188,6 +465,12 @@ export const payload_locked_documents_rels = sqliteTable(
     payload_locked_documents_rels_emprunts_id_idx: index(
       "payload_locked_documents_rels_emprunts_id_idx",
     ).on(columns.empruntsID),
+    payload_locked_documents_rels_historique_emprunt_id_idx: index(
+      "payload_locked_documents_rels_historique_emprunt_id_idx",
+    ).on(columns.historiqueEmpruntID),
+    payload_locked_documents_rels_payload_jobs_id_idx: index(
+      "payload_locked_documents_rels_payload_jobs_id_idx",
+    ).on(columns["payload-jobsID"]),
     parentFk: foreignKey({
       columns: [columns["parent"]],
       foreignColumns: [payload_locked_documents.id],
@@ -212,6 +495,16 @@ export const payload_locked_documents_rels = sqliteTable(
       columns: [columns["empruntsID"]],
       foreignColumns: [emprunts.id],
       name: "payload_locked_documents_rels_emprunts_fk",
+    }).onDelete("cascade"),
+    historiqueEmpruntIdFk: foreignKey({
+      columns: [columns["historiqueEmpruntID"]],
+      foreignColumns: [historique_emprunt.id],
+      name: "payload_locked_documents_rels_historique_emprunt_fk",
+    }).onDelete("cascade"),
+    "payload-jobsIdFk": foreignKey({
+      columns: [columns["payload-jobsID"]],
+      foreignColumns: [payload_jobs.id],
+      name: "payload_locked_documents_rels_payload_jobs_fk",
     }).onDelete("cascade"),
   }),
 );
@@ -294,20 +587,128 @@ export const payload_migrations = sqliteTable(
   }),
 );
 
-export const relations_users = relations(users, () => ({}));
-export const relations_jeux = relations(jeux, ({ one }) => ({
-  categorie: one(categories_jeux, {
-    fields: [jeux.categorie],
+export const relations_users_sessions = relations(
+  users_sessions,
+  ({ one }) => ({
+    _parentID: one(users, {
+      fields: [users_sessions._parentID],
+      references: [users.id],
+      relationName: "sessions",
+    }),
+  }),
+);
+export const relations_users = relations(users, ({ many }) => ({
+  sessions: many(users_sessions, {
+    relationName: "sessions",
+  }),
+}));
+export const relations_jeux_rels = relations(jeux_rels, ({ one }) => ({
+  parent: one(jeux, {
+    fields: [jeux_rels.parent],
+    references: [jeux.id],
+    relationName: "_rels",
+  }),
+  categoriesJeuxID: one(categories_jeux, {
+    fields: [jeux_rels.categoriesJeuxID],
     references: [categories_jeux.id],
-    relationName: "categorie",
+    relationName: "categoriesJeux",
+  }),
+}));
+export const relations_jeux = relations(jeux, ({ many }) => ({
+  _rels: many(jeux_rels, {
+    relationName: "_rels",
   }),
 }));
 export const relations_categories_jeux = relations(categories_jeux, () => ({}));
-export const relations_emprunts = relations(emprunts, ({ one }) => ({
-  game: one(jeux, {
-    fields: [emprunts.game],
+export const relations_emprunts_numbers = relations(
+  emprunts_numbers,
+  ({ one }) => ({
+    parent: one(emprunts, {
+      fields: [emprunts_numbers.parent],
+      references: [emprunts.id],
+      relationName: "_numbers",
+    }),
+  }),
+);
+export const relations_emprunts_rels = relations(emprunts_rels, ({ one }) => ({
+  parent: one(emprunts, {
+    fields: [emprunts_rels.parent],
+    references: [emprunts.id],
+    relationName: "_rels",
+  }),
+  jeuxID: one(jeux, {
+    fields: [emprunts_rels.jeuxID],
     references: [jeux.id],
-    relationName: "game",
+    relationName: "jeux",
+  }),
+}));
+export const relations_emprunts = relations(emprunts, ({ one, many }) => ({
+  createdBy: one(users, {
+    fields: [emprunts.createdBy],
+    references: [users.id],
+    relationName: "createdBy",
+  }),
+  _numbers: many(emprunts_numbers, {
+    relationName: "_numbers",
+  }),
+  _rels: many(emprunts_rels, {
+    relationName: "_rels",
+  }),
+}));
+export const relations_historique_emprunt_numbers = relations(
+  historique_emprunt_numbers,
+  ({ one }) => ({
+    parent: one(historique_emprunt, {
+      fields: [historique_emprunt_numbers.parent],
+      references: [historique_emprunt.id],
+      relationName: "_numbers",
+    }),
+  }),
+);
+export const relations_historique_emprunt_rels = relations(
+  historique_emprunt_rels,
+  ({ one }) => ({
+    parent: one(historique_emprunt, {
+      fields: [historique_emprunt_rels.parent],
+      references: [historique_emprunt.id],
+      relationName: "_rels",
+    }),
+    jeuxID: one(jeux, {
+      fields: [historique_emprunt_rels.jeuxID],
+      references: [jeux.id],
+      relationName: "jeux",
+    }),
+  }),
+);
+export const relations_historique_emprunt = relations(
+  historique_emprunt,
+  ({ one, many }) => ({
+    createdBy: one(users, {
+      fields: [historique_emprunt.createdBy],
+      references: [users.id],
+      relationName: "createdBy",
+    }),
+    _numbers: many(historique_emprunt_numbers, {
+      relationName: "_numbers",
+    }),
+    _rels: many(historique_emprunt_rels, {
+      relationName: "_rels",
+    }),
+  }),
+);
+export const relations_payload_jobs_log = relations(
+  payload_jobs_log,
+  ({ one }) => ({
+    _parentID: one(payload_jobs, {
+      fields: [payload_jobs_log._parentID],
+      references: [payload_jobs.id],
+      relationName: "log",
+    }),
+  }),
+);
+export const relations_payload_jobs = relations(payload_jobs, ({ many }) => ({
+  log: many(payload_jobs_log, {
+    relationName: "log",
   }),
 }));
 export const relations_payload_locked_documents_rels = relations(
@@ -337,6 +738,16 @@ export const relations_payload_locked_documents_rels = relations(
       fields: [payload_locked_documents_rels.empruntsID],
       references: [emprunts.id],
       relationName: "emprunts",
+    }),
+    historiqueEmpruntID: one(historique_emprunt, {
+      fields: [payload_locked_documents_rels.historiqueEmpruntID],
+      references: [historique_emprunt.id],
+      relationName: "historiqueEmprunt",
+    }),
+    "payload-jobsID": one(payload_jobs, {
+      fields: [payload_locked_documents_rels["payload-jobsID"]],
+      references: [payload_jobs.id],
+      relationName: "payload-jobs",
     }),
   }),
 );
@@ -377,19 +788,37 @@ export const relations_payload_migrations = relations(
 );
 
 type DatabaseSchema = {
+  users_sessions: typeof users_sessions;
   users: typeof users;
   jeux: typeof jeux;
+  jeux_rels: typeof jeux_rels;
   categories_jeux: typeof categories_jeux;
   emprunts: typeof emprunts;
+  emprunts_numbers: typeof emprunts_numbers;
+  emprunts_rels: typeof emprunts_rels;
+  historique_emprunt: typeof historique_emprunt;
+  historique_emprunt_numbers: typeof historique_emprunt_numbers;
+  historique_emprunt_rels: typeof historique_emprunt_rels;
+  payload_jobs_log: typeof payload_jobs_log;
+  payload_jobs: typeof payload_jobs;
   payload_locked_documents: typeof payload_locked_documents;
   payload_locked_documents_rels: typeof payload_locked_documents_rels;
   payload_preferences: typeof payload_preferences;
   payload_preferences_rels: typeof payload_preferences_rels;
   payload_migrations: typeof payload_migrations;
+  relations_users_sessions: typeof relations_users_sessions;
   relations_users: typeof relations_users;
+  relations_jeux_rels: typeof relations_jeux_rels;
   relations_jeux: typeof relations_jeux;
   relations_categories_jeux: typeof relations_categories_jeux;
+  relations_emprunts_numbers: typeof relations_emprunts_numbers;
+  relations_emprunts_rels: typeof relations_emprunts_rels;
   relations_emprunts: typeof relations_emprunts;
+  relations_historique_emprunt_numbers: typeof relations_historique_emprunt_numbers;
+  relations_historique_emprunt_rels: typeof relations_historique_emprunt_rels;
+  relations_historique_emprunt: typeof relations_historique_emprunt;
+  relations_payload_jobs_log: typeof relations_payload_jobs_log;
+  relations_payload_jobs: typeof relations_payload_jobs;
   relations_payload_locked_documents_rels: typeof relations_payload_locked_documents_rels;
   relations_payload_locked_documents: typeof relations_payload_locked_documents;
   relations_payload_preferences_rels: typeof relations_payload_preferences_rels;

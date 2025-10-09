@@ -15,3 +15,5 @@ export default async function GamePage() {
     </div>
   );
 }
+
+export const dynamic = 'force-dynamic';

@@ -5,7 +5,8 @@ export default async function populateCreatedBy({
   data,
 }: {
   req: PayloadRequest;
-  data: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: Partial<any>;
 }) {
   if (!req.user) {
     throw new Error('User not authenticated');

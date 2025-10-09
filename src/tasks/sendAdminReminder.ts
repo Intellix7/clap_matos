@@ -3,7 +3,6 @@ import { TaskConfig, TaskHandler } from 'payload';
 
 export const sendAdminReminder: TaskHandler<'sendAdminReminder'> = async ({
   input,
-  job,
   req,
 }) => {
   const { email, name, gamesName } = input;
