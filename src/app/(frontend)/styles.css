@@ -16,6 +16,7 @@
   border: none;
   cursor: pointer;
 }
+
 .reordering-button:hover {
   color: black;
 }
@@ -38,4 +39,19 @@
 
 .game-search-input:focus {
   border-color: #ff7d00;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out forwards;
 }

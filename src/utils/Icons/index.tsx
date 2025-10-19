@@ -47,7 +47,6 @@ function Icon<T extends keyof SpriteMap>({
       aria-hidden='true'
       style={{
         color: 'inherit',
-        transition: hoverColor ? 'color 0.3s' : undefined,
       }}
       onMouseEnter={hoverColor ? handleMouseEnter : undefined}
       onMouseLeave={hoverColor ? handleMouseLeave : undefined}

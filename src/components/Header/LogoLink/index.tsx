@@ -9,18 +9,18 @@ const LogoLink: React.FC<LogoLinkProps> = ({ isActive }) => {
   return (
     <Link
       href='/'
-      className='flex flex-col items-center header-link mb-2'
+      className='flex items-center justify-center space-x-2 header-link pointer-events-auto'
       aria-current={isActive ? 'page' : undefined}
     >
       <Image
         src='/logo-centrallgames.png'
         alt=''
         aria-hidden='true'
-        width={100}
-        height={100}
-        className='mb-3'
+        width={40}
+        height={40}
+        className='block' // or 'align-middle'
       />
-      <p className='text-3xl font-bold'>Centr&apos;All Games</p>
+      <p className='text-xl font-bold leading-none'>Centr&apos;All Games</p>
     </Link>
   );
 };
