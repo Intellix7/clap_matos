@@ -17,8 +17,8 @@ export default function Header() {
   ];
 
   return (
-    <header className='flex flex-col items-center pt-8 pb-8 px-8 text-center relative z-50'>
-      <div className='backdrop-blur-xs bg-white/10 container max-w-6xl flex flex-row items-center justify-between w-full border border-white/30 shadow-[0_0_25px_rgba(255,255,255,0.1)] px-6 py-2 mb-4 rounded-full relative'>
+    <header className='flex flex-col items-center pt-8 pb-6 px-8 text-center relative z-50'>
+      <div className='backdrop-blur-xs bg-white/10 container max-w-6xl flex flex-row items-center justify-between w-full border border-white/30 shadow-[0_0_25px_rgba(255,255,255,0.1)] px-6 py-2 rounded-full relative'>
         <LogoLink isActive={pathname === '/'} />
 
         {/* Desktop section */}

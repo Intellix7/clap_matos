@@ -2,11 +2,12 @@ import { Jeux } from '@/payload-types';
 
 export const TR: React.FC<{
   children: React.ReactNode;
+  style?: React.CSSProperties;
   className?: string;
-}> = ({ children, className }) => (
+}> = ({ children, className, style }) => (
   <tr
     className={`${className ?? ''}`}
-    style={{ transform: 'scale(1)' }} // Fixes some rendering issues in Safari
+    style={{ transform: 'scale(1)', ...style }} // Fixes some rendering issues in Safari
   >
     {children}
   </tr>
@@ -30,7 +31,12 @@ export const TD: React.FC<{
   children: React.ReactNode;
   className?: string;
 }> = ({ children, className }) => (
-  <td className={`py-2 px-4 ${className ?? ''}`}>{children}</td>
+  <td
+    className={`py-2 px-4 border-t-2 ${className ?? ''}`}
+    style={{ borderTopColor: 'rgba(255, 125, 0, 0.3)' }}
+  >
+    {children}
+  </td>
 );
 
 export function getPlayerFormatFromGame(game: Jeux): string {

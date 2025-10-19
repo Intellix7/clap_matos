@@ -13,7 +13,7 @@ interface TableBodyProps {
 const TableBody: React.FC<TableBodyProps> = ({ games }) => {
   return (
     <tbody>
-      {games.map((game, idx) => {
+      {games.map((game) => {
         const name = game.name;
         const category = game.categorie
           .filter((cat) => typeof cat === 'object')
@@ -25,10 +25,7 @@ const TableBody: React.FC<TableBodyProps> = ({ games }) => {
         const available = game.nbGamesAvailable > 0;
 
         return (
-          <TR
-            key={game.id}
-            className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-200'}`}
-          >
+          <TR key={game.id} className='backdrop-blur-xs bg-white/10 shadow-sm'>
             <TD>{name}</TD>
             <TD>{category}</TD>
             <TD>{time}</TD>

@@ -18,15 +18,11 @@
 }
 
 .reordering-button:hover {
-  color: black;
+  color: #ff7d00;
 }
 
 .reordering-button.active {
-  color: black;
-}
-
-.table-header {
-  background-color: #feef18;
+  color: #ff7d00;
 }
 
 .game-table {

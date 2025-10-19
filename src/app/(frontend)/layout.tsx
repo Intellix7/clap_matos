@@ -16,22 +16,19 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     <html lang='fr'>
       <body className='relative min-h-screen bg-black text-white w-full flex flex-col overflow-hidden'>
         {/* Background layer */}
-        <div className='fixed inset-0 pointer-events-auto'>
+        <div className='fixed inset-0'>
           <Squares
             speed={0.3}
             squareSize={40}
             direction='diagonal'
             borderColor='#ECD540'
-            hoverFillColor='#ffffff'
           />
         </div>
 
         {/* Foreground content */}
         <div className='relative z-10 flex flex-col flex-1'>
           <Header />
-          <main className='flex-1 relative'>
-            <div className='pointer-events-auto'>{children}</div>
-          </main>
+          <main className='flex-1 relative'>{children}</main>
         </div>
       </body>
     </html>
