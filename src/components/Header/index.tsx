@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import LogoLink from './LogoLink';
 import Links from './Links';
@@ -15,6 +15,11 @@ export default function Header() {
     { href: '/', label: 'Accueil' },
     { href: '/games', label: 'Jeux' },
   ];
+
+  // Close burger menu on page change
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   return (
     <header className='flex flex-col items-center pt-8 pb-6 px-8 text-center relative z-50'>
