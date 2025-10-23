@@ -14,7 +14,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   return (
     <html lang='fr'>
-      <body className='relative min-h-screen bg-black text-white w-full flex flex-col overflow-hidden'>
+      <body className='relative min-h-screen bg-black text-white w-full flex flex-col'>
         {/* Background layer */}
         <div className='fixed inset-0'>
           <Squares
@@ -24,7 +24,6 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             borderColor='#ECD540'
           />
         </div>
-
         {/* Foreground content */}
         <div className='relative z-10 flex flex-col flex-1'>
           <Header />

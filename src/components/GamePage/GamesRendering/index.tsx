@@ -119,7 +119,7 @@ const GamesRendering: React.FC<GamesRenderingProps> = ({ games }) => {
 
   return (
     <div className='w-full overflow-x-auto mb-4'>
-      <table className='w-full table-auto border-collapse game-table'>
+      <table className='w-full rounded-lg overflow-hidden table-auto border-collapse game-table'>
         <TableHeader sortState={sortState} onReorder={handleReorder} />
         <TableBody games={sortedGames} />
       </table>
