@@ -44,3 +44,4 @@ next-env.d.ts
 
 cag.db
 src/migrations
+/database.db
