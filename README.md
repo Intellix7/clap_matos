@@ -75,7 +75,7 @@ Pour `WebStorm` :
 (encore une fois, pas fou, si vous êtes determinés, vous pouvez utiliser [cette méthode](https://www.jetbrains.com/help/webstorm/installation-guide.html#install-toolbox-linux))
 
 #### Petit conseil : 
-Pour les gens qui ont installé WSL, il est possible d'installer VSCode sur **Windows** (pas dans WSL) et d'appuyer sur le petit bouton bleu en bas à droite :
+Pour les gens qui ont installé WSL, il est possible d'installer VSCode sur **Windows** (pas dans WSL) et d'appuyer sur le petit bouton bleu en bas à **gauche** :
 
 ![Bouton bleu](doc/bouton_bleu.png)
 
